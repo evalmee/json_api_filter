@@ -14,7 +14,7 @@ module JsonApiFilter
   extend ::ActiveSupport::Concern
   included do
 
-    def filter_by_attr(params = params)
+    def attr_filter(params = params)
       unless self.class.json_api_permitted_filters.present?
         raise ::JsonApiFilter::MissingPermittedFilterError
       end
