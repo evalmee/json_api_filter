@@ -14,14 +14,14 @@ module JsonApiFilter
   extend ::ActiveSupport::Concern
   included do
 
-    def attr_filter(params = params)
+    def attr_filter(query_params = params)
       unless self.class.json_api_permitted_filters.present?
         raise ::JsonApiFilter::MissingPermittedFilterError
       end
 
       ::JsonApiFilter::Filters.new(
         self.class.json_api_permitted_filters,
-        params
+        query_params
       ).to_hash
     end
 
