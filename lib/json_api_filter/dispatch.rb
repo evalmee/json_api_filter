@@ -23,12 +23,11 @@ module JsonApiFilter
     
     def filters_predicate
       #todo : .with_indifferent_access add a dependency to ActiveSupport => to remove
-      filters.map do |key, value|
+      parser_params['filter'].map do |key, value|
         if value.class != ActiveSupport::HashWithIndifferentAccess
           next ::JsonApiFilter::FieldFilters::Matcher.new(scope, {key => value})
         end
-        
-        # ::JsonApiFilter::FieldFilters::Compare.new(scope, {key => value})
+        ::JsonApiFilter::FieldFilters::Compare.new(scope, {key => value})
       end.map(&:predicate).reduce(&:merge)
     end
     

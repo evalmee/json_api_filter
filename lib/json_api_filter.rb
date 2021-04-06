@@ -4,6 +4,7 @@ require "json_api_filter/filter_attributes"
 require "json_api_filter/value_parser"
 require "json_api_filter/field_filters/base"
 require "json_api_filter/field_filters/matcher"
+require "json_api_filter/field_filters/compare"
 require "active_support/concern"
 require "active_support/core_ext/object/blank"
 
