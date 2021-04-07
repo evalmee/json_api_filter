@@ -19,7 +19,7 @@ module JsonApiFilter
   included do
   
     # @param [ActiveRecord::Base] scope
-    def attr_filter(scope, query_params = params)
+    def json_api_filter(scope, query_params = params)
       unless self.class.json_api_permitted_filters.present?
         raise ::JsonApiFilter::MissingPermittedFilterError
       end

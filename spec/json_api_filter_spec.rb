@@ -101,7 +101,7 @@ RSpec.describe JsonApiFilter do
         tc = test_case.with_indifferent_access
         
         it "Filter by #{tc['name']}" do
-          expect(object.attr_filter(User, tc['params'])).to eq(tc['request'])
+          expect(object.json_api_filter(User, tc['params'])).to eq(tc['request'])
         end
       end
     end

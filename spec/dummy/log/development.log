@@ -107,3 +107,4 @@ Migrating to CreateUsers (20210406172805)
   [1m[36mUser Load (0.1ms)[0m  [1m[34mSELECT "users".* FROM "users" WHERE (id <= 1) AND (name ='foo')[0m
   [1m[35m (1.0ms)[0m  [1m[34mSELECT sqlite_version(*)[0m
   [1m[35m (0.9ms)[0m  [1m[34mSELECT sqlite_version(*)[0m
+  [1m[35m (1.3ms)[0m  [1m[34mSELECT sqlite_version(*)[0m
