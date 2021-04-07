@@ -10,6 +10,16 @@ RSpec.describe JsonApiFilter do
   let(:object) { FakesController.new }
   klass_examples = [
       {
+        name: "JsonApiFilter::Dispatch",
+        examples: [
+          {
+            name: 'nothing 😉',
+            params: {},
+            request: User.all
+          },
+        ],
+      },
+      {
         name: "JsonApiFilter::FieldFilters::Matcher",
         examples: [
           {
@@ -18,7 +28,14 @@ RSpec.describe JsonApiFilter do
               filter: { id: "1,2" }
             },
             request: User.where(id: [1,2])
-          }
+          },
+          {
+            name: 'empty id',
+            params: {
+              filter: { id: "" }
+            },
+            request: User.where(id: '')
+          },
        ],
       },
       {
@@ -99,6 +116,7 @@ RSpec.describe JsonApiFilter do
     
       klass[:examples].each do |test_case|
         tc = test_case.with_indifferent_access
+        
         
         it "Filter by #{tc['name']}" do
           expect(object.json_api_filter(User, tc['params'])).to eq(tc['request'])
