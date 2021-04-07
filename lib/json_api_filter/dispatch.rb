@@ -3,13 +3,16 @@ module JsonApiFilter
   
     attr_reader :params, :scope, :allowed_filters
     
-    # @param [Object] params
+    # @param [ActiveRecord::Base] scope
+    # @param [Hash, ActionController::Parameters] params
+    # @param [Array<Symbol>] allowed_filters
     def initialize(scope, params, allowed_filters:)
       @params = params
       @scope = scope
       @allowed_filters = allowed_filters
     end
-    
+
+    # @return [ActiveRecord_Relation]
     def process
       [
         scope,
@@ -21,6 +24,7 @@ module JsonApiFilter
     
     private
     
+    # @return [ActiveRecord::Base, NilClass]
     def filters_predicate
       #todo : .with_indifferent_access add a dependency to ActiveSupport => to remove
       parser_params.fetch('filter',[]).map do |key, value|
@@ -30,17 +34,20 @@ module JsonApiFilter
         ::JsonApiFilter::FieldFilters::Compare.new(scope, {key => value})
       end.map(&:predicate).reduce(&:merge)
     end
-    
+
+    # @return [ActiveRecord::Base, NilClass]
     def sort_predicate
       # todo : call ::JsonApiFilter::Sorter
       scope.all
     end
-    
+
+    # @return [ActiveRecord::Base, NilClass]
     def search_predicate
       # todo : call ::JsonApiFilter::Searcher
       scope.all
     end
     
+    # @return [Hash]
     def parser_params
       return params.to_unsafe_h if params.class == ActionController::Parameters
       

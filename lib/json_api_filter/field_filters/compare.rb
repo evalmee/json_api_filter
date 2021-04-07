@@ -2,7 +2,8 @@
 module JsonApiFilter
   module FieldFilters
     class Compare < Base
-      
+  
+      # @return [ActiveRecord_Relation]
       def predicate
         column = values.keys.first
         filter = values.first[1]
