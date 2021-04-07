@@ -3,7 +3,9 @@ RSpec.describe JsonApiFilter do
   before do
     class FakesController
       include ::JsonApiFilter
-      permitted_filters  %i[id author]
+      permitted_filters  %i[id author name]
+      permitted_searches :fake_global_search,
+                         name: :fake_name_search
     end
   end
   after { Object.send :remove_const, :FakesController }
@@ -106,6 +108,62 @@ RSpec.describe JsonApiFilter do
             request: User.where("id <= 1").where("name = 'foo'")
           }
        ]
+      },
+      {
+        name: "JsonApiFilter::FieldFilters::Searcher",
+        examples: [
+          {
+            name: "global search",
+            params: {
+              search: "test user"
+            },
+            request: User.where("name = 'test user'")
+          },
+          {
+            name: "column search",
+            params: {
+              filter: {
+                name: {
+                  search: "test user"
+                }
+              }
+            },
+            request: User.where("name = 'test user'")
+          }
+        ]
+      },
+      {
+        name: "JsonApiFilter::FieldFilters::Sorter",
+        examples: [
+          {
+            name: "sort by id",
+            params: {
+              sort: {
+                by: "id"
+              }
+            },
+            request: User.order("id")
+          },
+          {
+            name: "sort by descending id",
+            params: {
+              sort: {
+                by: "id",
+                desc: true
+              }
+            },
+            request: User.order("id").reverse_order
+          },
+          {
+            name: "sort by name",
+            params: {
+              sort: {
+                by: "name"
+              }
+            },
+            request: User.order("name")
+          },
+        ]
       }
     ]
 

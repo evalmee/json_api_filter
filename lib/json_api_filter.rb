@@ -5,6 +5,8 @@ require "json_api_filter/value_parser"
 require "json_api_filter/field_filters/base"
 require "json_api_filter/field_filters/matcher"
 require "json_api_filter/field_filters/compare"
+require "json_api_filter/field_filters/searcher"
+require "json_api_filter/field_filters/sorter"
 require "active_support/concern"
 require "active_support/core_ext/object/blank"
 
@@ -27,7 +29,8 @@ module JsonApiFilter
       ::JsonApiFilter::Dispatch.new(
         scope,
         query_params,
-        allowed_filters: self.class.json_api_permitted_filters
+        allowed_filters: self.class.json_api_permitted_filters,
+        allowed_searches: self.class.json_api_permitted_searches
       ).process
     end
 
@@ -39,6 +42,16 @@ module JsonApiFilter
 
     def self.json_api_permitted_filters
       []
+    end
+
+    def self.permitted_searches(global, **columns)
+      define_singleton_method(:json_api_permitted_searches) do
+        { global: global, columns: columns }
+      end
+    end
+
+    def self.json_api_permitted_searches
+      {}
     end
   end
 end

@@ -1,23 +1,24 @@
 module JsonApiFilter
   class Dispatch
   
-    attr_reader :params, :scope, :allowed_filters
+    attr_reader :params, :scope, :allowed_filters, :allowed_searches
     
     # @param [ActiveRecord::Base] scope
     # @param [Hash, ActionController::Parameters] params
     # @param [Array<Symbol>] allowed_filters
-    def initialize(scope, params, allowed_filters:)
+    def initialize(scope, params, allowed_filters:, allowed_searches:)
       @params = params
       @scope = scope
       @allowed_filters = allowed_filters
+      @allowed_searches = allowed_searches
     end
 
     # @return [ActiveRecord_Relation]
     def process
       [
-        scope,
-        filters_predicate,
+        scope.all,
         sort_predicate,
+        filters_predicate,
         search_predicate,
       ].compact.reduce(&:merge)
     end
@@ -27,24 +28,35 @@ module JsonApiFilter
     # @return [ActiveRecord::Base, NilClass]
     def filters_predicate
       #todo : .with_indifferent_access add a dependency to ActiveSupport => to remove
-      parser_params.fetch('filter',[]).map do |key, value|
+      parser_params.fetch('filter', {}).map do |key, value|
+        next unless filters.include?(key)
+        next unless scope.column_names.include?(key)
         if value.class != ActiveSupport::HashWithIndifferentAccess
           next ::JsonApiFilter::FieldFilters::Matcher.new(scope, {key => value})
         end
-        ::JsonApiFilter::FieldFilters::Compare.new(scope, {key => value})
-      end.map(&:predicate).reduce(&:merge)
+        ::JsonApiFilter::FieldFilters::Compare.new(
+          scope,
+          {key => value},
+          allowed_searches: allowed_searches
+        )
+      end.compact.map(&:predicate).reduce(&:merge)
     end
 
     # @return [ActiveRecord::Base, NilClass]
     def sort_predicate
-      # todo : call ::JsonApiFilter::Sorter
-      scope.all
+      sort = parser_params[:sort]
+      return nil if sort.blank?
+      ::JsonApiFilter::FieldFilters::Sorter.new(scope, sort).predicate
     end
 
     # @return [ActiveRecord::Base, NilClass]
     def search_predicate
-      # todo : call ::JsonApiFilter::Searcher
-      scope.all
+      return nil if parser_params[:search].blank?
+      return nil if allowed_searches[:global].nil?
+      ::JsonApiFilter::FieldFilters::Searcher.new(
+        scope,
+        {allowed_searches[:global] => parser_params[:search]}
+      ).predicate
     end
     
     # @return [Hash]
