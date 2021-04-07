@@ -7,9 +7,9 @@ module JsonApiFilter
         page = values["page"]
         per_page = values["perPage"]
         result = scope
-        unless page.nil? || per_page.nil? || per_page == -1
-          result = result.limit(per_page)
-          result = result.offset((page - 1) * per_page)
+        unless page.nil? || per_page.nil? || per_page == "-1"
+          result = result.limit(per_page.to_i)
+          result = result.offset((page.to_i - 1) * per_page.to_i)
         end
         result
       end
