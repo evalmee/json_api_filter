@@ -44,7 +44,7 @@ end
 ```
 
 - `permitted_filters` let you define allowed attributes to filter on (mandatory)
-- `json_api_filter(params)` return an active record relation (`Book::ActiveRecord_Relation` in this example
+- `json_api_filter(scope, params)` return an active record relation (`Book::ActiveRecord_Relation` in this example
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
