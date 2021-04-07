@@ -48,7 +48,7 @@ RSpec.describe JsonApiFilter do
             params: {
               filter: { id: {eq: 1} }
             },
-            request: User.where("id = 1")
+            request: User.where("id" => "1")
           },
           {
             name: 'not eq id',
@@ -105,7 +105,7 @@ RSpec.describe JsonApiFilter do
                 name: {eq: "foo"}
               }
             },
-            request: User.where("id <= 1").where("name = 'foo'")
+            request: User.where("id <= 1").where("name" => "foo")
           }
        ]
       },
