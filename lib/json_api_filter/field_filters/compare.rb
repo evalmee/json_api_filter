@@ -16,7 +16,7 @@ module JsonApiFilter
         filter = values.first[1]
         filter.map do |key, value|
           if !WHERE_METHODS[key.to_sym].nil?
-            self.class.compare(scope, column, key, value)
+            compare(column, key, value)
           elsif key == "search"
             next unless allowed_searches[:columns].keys.include?(column.to_sym)
             ::JsonApiFilter::FieldFilters::Searcher.new(
@@ -40,12 +40,9 @@ module JsonApiFilter
         le: "<=",
       }
       
-      def self.compare(scope, column, method, value)
-        # convert enums to their integer representation
-        unless scope.defined_enums[column].nil?
-          value = scope.defined_enums[column][value]
-        end
-        if WHERE_METHODS[method.to_sym] == "=" && value.class == Array
+      def compare(column, method, value)
+        if WHERE_METHODS[method.to_sym] == "="
+          # prefer this method for eq as it implicitely transforms enum into their integer representation
           scope.where(column => value)
         else
           scope.where("#{column} #{WHERE_METHODS[method.to_sym]} ?", value)

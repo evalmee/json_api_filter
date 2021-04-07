@@ -5,7 +5,7 @@ module JsonApiFilter
       # @return [ActiveRecord_Relation]
       def predicate
         values.map do |key, value|
-          ::JsonApiFilter::FieldFilters::Compare.compare(scope, key, :eq, ::JsonApiFilter::ValueParser.parse(value))
+          scope.where(key => ::JsonApiFilter::ValueParser.parse(value))
         end.reduce(&:merge)
       end
     
