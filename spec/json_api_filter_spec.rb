@@ -164,6 +164,31 @@ RSpec.describe JsonApiFilter do
             request: User.order("name")
           },
         ]
+      },
+      {
+        name: "JsonApiFilter::FieldFilters::Pagination",
+        examples: [
+          {
+            name: "first page with 10 elements",
+            params: {
+              pagination: {
+                page: 1,
+                perPage: 10
+              }
+            },
+            request: User.limit(10).offset(0)
+          },
+          {
+            name: "third page with 5 elements",
+            params: {
+              pagination: {
+                page: 3,
+                perPage: 5
+              }
+            },
+            request: User.limit(5).offset(10)
+          }
+        ]
       }
     ]
 

@@ -7,6 +7,7 @@ require "json_api_filter/field_filters/matcher"
 require "json_api_filter/field_filters/compare"
 require "json_api_filter/field_filters/searcher"
 require "json_api_filter/field_filters/sorter"
+require "json_api_filter/field_filters/pagination"
 require "active_support/concern"
 require "active_support/core_ext/object/blank"
 

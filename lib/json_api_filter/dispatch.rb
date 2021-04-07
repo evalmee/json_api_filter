@@ -20,6 +20,7 @@ module JsonApiFilter
         sort_predicate,
         filters_predicate,
         search_predicate,
+        pagination_predicate
       ].compact.reduce(&:merge)
     end
     
@@ -56,6 +57,15 @@ module JsonApiFilter
       ::JsonApiFilter::FieldFilters::Searcher.new(
         scope,
         {allowed_searches[:global] => parser_params[:search]}
+      ).predicate
+    end
+
+    # @return [ActiveRecord::Base, NilClass]
+    def pagination_predicate
+      return nil if parser_params[:pagination].nil?
+      ::JsonApiFilter::FieldFilters::Pagination.new(
+        scope,
+        parser_params[:pagination]
       ).predicate
     end
     
