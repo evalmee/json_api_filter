@@ -7,7 +7,7 @@ module JsonApiFilter
         return nil if values["by"].nil?
         result = scope
         result = result.order(values["by"])
-        result = result.reverse_order if values["desc"] == true
+        result = result.reverse_order if values["desc"] == "true"
         result
       end
     
