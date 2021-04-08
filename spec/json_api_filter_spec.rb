@@ -142,7 +142,7 @@ RSpec.describe JsonApiFilter do
                 by: "id"
               }
             },
-            request: User.order("id")
+            request: User.order(:id)
           },
           {
             name: "sort by descending id",
@@ -152,7 +152,7 @@ RSpec.describe JsonApiFilter do
                 desc: true
               }
             },
-            request: User.order("id").reverse_order
+            request: User.order(id: :desc)
           },
           {
             name: "sort by name",
@@ -161,7 +161,7 @@ RSpec.describe JsonApiFilter do
                 by: "name"
               }
             },
-            request: User.order("name")
+            request: User.order(:name)
           },
         ]
       },
