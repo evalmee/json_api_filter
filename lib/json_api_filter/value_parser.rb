@@ -13,7 +13,7 @@ module JsonApiFilter
     end
     
     def parse
-      return value unless value.include?(",")
+      return [value] unless value.include?(",")
       value.split(',')
     end
   
