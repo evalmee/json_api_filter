@@ -117,7 +117,7 @@ RSpec.describe JsonApiFilter do
             params: {
               search: "test user"
             },
-            request: User.where("name = 'test user'")
+            request: User.where(id: User.where("name = 'test user'").select(:id))
           },
           {
             name: "column search",
@@ -128,7 +128,7 @@ RSpec.describe JsonApiFilter do
                 }
               }
             },
-            request: User.where("name = 'test user'")
+            request: User.where(id: User.where("name = 'test user'").select(:id))
           }
         ]
       },
@@ -202,7 +202,7 @@ RSpec.describe JsonApiFilter do
         
         
         it "Filter by #{tc['name']}" do
-          expect(object.json_api_filter(User, tc['params'])).to eq(tc['request'])
+          expect(object.json_api_filter(User, tc['params'])).to eq(tc['request'].order(:id))
         end
       end
     end
