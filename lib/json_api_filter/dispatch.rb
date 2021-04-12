@@ -15,13 +15,14 @@ module JsonApiFilter
 
     # @return [ActiveRecord_Relation]
     def process
-      [
+      @scope = [
         scope.all,
         sort_predicate,
         filters_predicate,
-        search_predicate,
-        pagination_predicate
-      ].compact.reduce(&:merge)
+        search_predicate
+      ].compact.reduce(&:merge).order(:id)
+      return scope if params[:pagination].nil?
+      scope.merge(pagination_predicate)
     end
     
     private
