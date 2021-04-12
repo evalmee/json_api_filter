@@ -4,7 +4,7 @@ module JsonApiFilter
   
       # @return [ActiveRecord_Relation]
       def predicate
-        scope.send(values.keys.first, values.values.first)
+        scope.where(id: scope.send(values.keys.first, values.values.first).select(:id))
       end
 
     end
