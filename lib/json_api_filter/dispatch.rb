@@ -20,7 +20,7 @@ module JsonApiFilter
         sort_predicate,
         filters_predicate,
         search_predicate
-      ].compact.reduce(&:merge).order(:id)
+      ].compact.reduce(&:merge)
       return scope if params[:pagination].nil?
       scope.merge(pagination_predicate)
     end
