@@ -202,7 +202,7 @@ RSpec.describe JsonApiFilter do
         
         
         it "Filter by #{tc['name']}" do
-          expect(object.json_api_filter(User, tc['params'])).to eq(tc['request'].order(:id))
+          expect(object.json_api_filter(User, tc['params'])).to eq(tc['request'])
         end
       end
     end
@@ -210,4 +210,3 @@ RSpec.describe JsonApiFilter do
   end
 
 end
-
