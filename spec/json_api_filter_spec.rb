@@ -3,7 +3,7 @@ RSpec.describe JsonApiFilter do
   before do
     class FakesController
       include ::JsonApiFilter
-      permitted_filters  %i[id author name]
+      permitted_filters  [:id, :author, :name, users: [:id]]
       permitted_searches :fake_global_search,
                          name: :fake_name_search
     end
@@ -117,7 +117,7 @@ RSpec.describe JsonApiFilter do
             params: {
               search: "test user"
             },
-            request: User.where(id: User.where("name = 'test user'").select(:id))
+            request: User.where("name = 'test user'")
           },
           {
             name: "column search",
@@ -128,7 +128,7 @@ RSpec.describe JsonApiFilter do
                 }
               }
             },
-            request: User.where(id: User.where("name = 'test user'").select(:id))
+            request: User.where("name = 'test user'")
           }
         ]
       },
@@ -189,7 +189,26 @@ RSpec.describe JsonApiFilter do
             request: User.limit(5).offset(10)
           }
         ]
-      }
+      },
+      {
+        name: "JsonApiFilter::FieldFilters::Matcher on associations",
+        examples: [
+                {
+                  name: 'direct id',
+                  params: {
+                    filter: { users: {id: "1,2"} }
+                  },
+                  request: User.where(id: [1,2])
+                },
+                {
+                  name: 'empty id',
+                  params: {
+                    filter: { id: "" }
+                  },
+                  request: User.where(id: '')
+                },
+              ],
+      },
     ]
 
 
