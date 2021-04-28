@@ -2,6 +2,7 @@
 
 Filter for rails controller based on JsonAPI spec: `/books?filter[library_id]=1,2&filter[author_id][eq]=12&filter[created_at][gt]=2021-02-02`
 
+[![Maintainability](https://api.codeclimate.com/v1/badges/f620f88131ea9d8ff650/maintainability)](https://codeclimate.com/github/Blaked84/json_api_filter/maintainability)
 [![Gem Version](https://badge.fury.io/rb/json_api_filter.svg)](https://badge.fury.io/rb/json_api_filter)
 [![Build Status](https://travis-ci.com/Blaked84/json_api_filter.svg?branch=master)](https://travis-ci.com/Blaked84/json_api_filter)
 
@@ -44,7 +45,8 @@ end
 ```
 
 - `permitted_filters` let you define allowed attributes to filter on (mandatory)
-- `json_api_filter(scope, params)` return an active record relation (`Book::ActiveRecord_Relation` in this example
+- `json_api_filter(scope, params)` return an active record relation (`Book::
+  ` in this example
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
