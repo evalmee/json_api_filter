@@ -32,10 +32,11 @@ module JsonApiFilter
       #todo : .with_indifferent_access add a dependency to ActiveSupport => to remove
       parser_params.fetch('filter', {}).map do |key, value|
         next unless filters.include?(key)
-        next unless scope.column_names.include?(key)
-        if value.class != ActiveSupport::HashWithIndifferentAccess
+
+        if nested_filters.include?(key.to_sym) || value.class != ActiveSupport::HashWithIndifferentAccess
           next ::JsonApiFilter::FieldFilters::Matcher.new(scope, {key => value})
         end
+        
         ::JsonApiFilter::FieldFilters::Compare.new(
           scope,
           {key => value},
@@ -80,6 +81,10 @@ module JsonApiFilter
     # @return [Hash]
     def filters
       FilterAttributes.new(allowed_filters, parser_params[:filter]).process
+    end
+
+    def nested_filters
+      FilterAttributes.new(allowed_filters, parser_params[:filter]).nested_allowed_filter
     end
     
   end
