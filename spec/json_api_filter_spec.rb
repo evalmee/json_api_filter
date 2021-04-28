@@ -117,7 +117,7 @@ RSpec.describe JsonApiFilter do
             params: {
               search: "test user"
             },
-            request: User.where(id: User.where("name = 'test user'").select(:id))
+            request: User.where("name = 'test user'")
           },
           {
             name: "column search",
@@ -128,7 +128,7 @@ RSpec.describe JsonApiFilter do
                 }
               }
             },
-            request: User.where(id: User.where("name = 'test user'").select(:id))
+            request: User.where("name = 'test user'")
           }
         ]
       },
