@@ -3,7 +3,7 @@ RSpec.describe JsonApiFilter do
   before do
     class FakesController
       include ::JsonApiFilter
-      permitted_filters  [:id, :author, :name, posts: [:id]]
+      permitted_filters  [:id, :author, :name, posts: [:id], articles: [:id]]
       permitted_searches :fake_global_search,
                          name: :fake_name_search
     end
@@ -199,6 +199,14 @@ RSpec.describe JsonApiFilter do
                     filter: { posts: {id: "1,2"} }
                   },
                   request: User.joins(:posts)
+                               .where(posts: {id: [1,2]})
+                },
+                {
+                  name: 'named relationship ',
+                  params: {
+                    filter: { articles: {id: "1,2"} }
+                  },
+                  request: User.joins(:articles)
                                .where(posts: {id: [1,2]})
                 },
                 {

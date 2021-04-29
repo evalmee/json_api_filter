@@ -11,20 +11,8 @@ module JsonApiFilter
     end
     
     def predicate
-      scope.joins(table_name.to_sym)
+      scope.joins(association_name.to_sym)
     end
     
-    private
-    
-    # @return [ActiveRecord::Base]
-    def model_klass
-      scope.try(:klass) || scope
-    end
-    
-    def table_name
-      model_klass.reflections[association_name.to_s].table_name
-    end
-    
-  
   end
 end

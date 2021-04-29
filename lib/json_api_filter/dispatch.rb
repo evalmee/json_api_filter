@@ -30,11 +30,19 @@ module JsonApiFilter
     
     # @return [ActiveRecord::Base, NilClass]
     def filters_predicate
-      #todo : .with_indifferent_access add a dependency to ActiveSupport => to remove
+      #TODO: split this method
       parser_params.fetch('filter', {}).map do |key, value|
         next unless filters.include?(key)
 
-        if nested_filters.include?(key.to_sym) || value.class != ActiveSupport::HashWithIndifferentAccess
+        if nested_filters.include?(key.to_sym)
+          next ::JsonApiFilter::FieldFilters::Matcher.new(
+            scope,
+            {key => value},
+            association: true
+          )
+        end
+
+        if value.class != ActiveSupport::HashWithIndifferentAccess
           next ::JsonApiFilter::FieldFilters::Matcher.new(scope, {key => value})
         end
         
@@ -50,6 +58,7 @@ module JsonApiFilter
     def sort_predicate
       sort = parser_params[:sort]
       return nil if sort.blank?
+      
       ::JsonApiFilter::FieldFilters::Sorter.new(scope, sort).predicate
     end
 
@@ -57,6 +66,7 @@ module JsonApiFilter
     def search_predicate
       return nil if parser_params[:search].blank?
       return nil if allowed_searches[:global].nil?
+      
       ::JsonApiFilter::FieldFilters::Searcher.new(
         scope,
         {allowed_searches[:global] => parser_params[:search]}
@@ -66,6 +76,7 @@ module JsonApiFilter
     # @return [ActiveRecord::Base, NilClass]
     def pagination_predicate
       return nil if parser_params[:pagination].nil?
+      
       ::JsonApiFilter::FieldFilters::Pagination.new(
         scope,
         parser_params[:pagination]
