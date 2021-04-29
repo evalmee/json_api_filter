@@ -1,4 +1,5 @@
 require "json_api_filter/version"
+require "json_api_filter/auto_join"
 require "json_api_filter/dispatch"
 require "json_api_filter/filter_attributes"
 require "json_api_filter/value_parser"

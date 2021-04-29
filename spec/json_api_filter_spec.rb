@@ -3,7 +3,7 @@ RSpec.describe JsonApiFilter do
   before do
     class FakesController
       include ::JsonApiFilter
-      permitted_filters  [:id, :author, :name, users: [:id]]
+      permitted_filters  [:id, :author, :name, posts: [:id]]
       permitted_searches :fake_global_search,
                          name: :fake_name_search
     end
@@ -194,18 +194,32 @@ RSpec.describe JsonApiFilter do
         name: "JsonApiFilter::FieldFilters::Matcher on associations",
         examples: [
                 {
-                  name: 'direct id',
+                  name: 'direct multiples id',
                   params: {
-                    filter: { users: {id: "1,2"} }
+                    filter: { posts: {id: "1,2"} }
                   },
-                  request: User.where(id: [1,2])
+                  request: User.joins(:posts)
+                               .where(posts: {id: [1,2]})
                 },
                 {
-                  name: 'empty id',
+                  name: 'direct one id',
                   params: {
-                    filter: { id: "" }
+                    filter: { posts: {id: "1"} }
                   },
-                  request: User.where(id: '')
+                  request:  User.joins(:posts)
+                                .where(posts: {id: 1})
+                },
+                {
+                  name: 'combined',
+                  params: {
+                    filter: {
+                      posts: {id: "1,2"},
+                      name: "foo",
+                    }
+                  },
+                  request: User.joins(:posts)
+                               .where(posts: {id: [1,2]})
+                               .where(name: "foo")
                 },
               ],
       },

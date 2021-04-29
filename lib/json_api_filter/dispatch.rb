@@ -19,7 +19,8 @@ module JsonApiFilter
         scope.all,
         sort_predicate,
         filters_predicate,
-        search_predicate
+        search_predicate,
+        join_predicate,
       ].compact.reduce(&:merge)
       return scope if params[:pagination].nil?
       scope.merge(pagination_predicate)
@@ -69,6 +70,15 @@ module JsonApiFilter
         scope,
         parser_params[:pagination]
       ).predicate
+    end
+
+    # @return [ActiveRecord::Base, NilClass]
+    def join_predicate
+      parser_params.fetch('filter', {}).map do |key, value|
+        next unless nested_filters.include?(key.to_sym)
+        
+        ::JsonApiFilter::AutoJoin.new(scope, key)
+      end.compact.map(&:predicate).reduce(&:merge)
     end
     
     # @return [Hash]
