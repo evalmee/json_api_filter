@@ -28,13 +28,14 @@ $ gem install json_api_filter
 
 ### Quick start
 
-To filter this request `/books?filter[library_id]=1,2&filter[author_id]=12`
+To filter this request `/books?filter[library_id]=1,2&filter[author_id]=12&search=Lord of the ring`
 
 ```ruby
 class Book < ApplicationController
 
   include JsonApiFilter
   permitted_filters  %i[library_id author_id]
+  permitted_searches :user_search
   
   def index
     @books = json_api_filter(Book, params)
@@ -45,8 +46,27 @@ end
 ```
 
 - `permitted_filters` let you define allowed attributes to filter on (mandatory)
-- `json_api_filter(scope, params)` return an active record relation (`Book::
-  ` in this example
+- `permitted_searches` let you define the allowed search method defined in you model what will be called if you pass `search` params in your request (can be a pg_search scope)
+- `json_api_filter(scope, params)` return an active record relation (`Book::` in this example)
+  
+## Migration from 0.1
+0.2.x version is not compatible with 0.1
+In your controller, you will have to replace all occurrences of `attr_filter` as bellow :
+
+### Before
+```ruby
+def index 
+  @books = Book.all.where(attr_filter(params))
+end
+```
+
+### After
+```ruby
+def index
+  @books = json_api_filter(Book, params)
+end
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
