@@ -1,8 +1,10 @@
 # JsonApiFilter
 
-Filter for rails controller based on JsonAPI spec: `/books?filter[library_id]=1,2&filter[author_id]=12`
+Filter for rails controller based on JsonAPI spec: `/books?filter[library_id]=1,2&filter[author_id][eq]=12&filter[created_at][gt]=2021-02-02`
 
+[![Maintainability](https://api.codeclimate.com/v1/badges/f620f88131ea9d8ff650/maintainability)](https://codeclimate.com/github/Blaked84/json_api_filter/maintainability)
 [![Gem Version](https://badge.fury.io/rb/json_api_filter.svg)](https://badge.fury.io/rb/json_api_filter)
+[![Build Status](https://travis-ci.com/Blaked84/json_api_filter.svg?branch=master)](https://travis-ci.com/Blaked84/json_api_filter)
 
 ## Installation
 
@@ -13,27 +15,30 @@ gem 'json_api_filter'
 ```
 
 And then execute:
-
-    $ bundle
+```bash
+$ bundle
+```
 
 Or install it yourself as:
-
-    $ gem install json_api_filter
+```bash
+$ gem install json_api_filter
+```
 
 ## Usage
 
 ### Quick start
 
-To filter this request `/books?filter[library_id]=1,2&filter[author_id]=12`
+To filter this request `/books?filter[library_id]=1,2&filter[author_id]=12&search=Lord of the ring`
 
 ```ruby
 class Book < ApplicationController
 
   include JsonApiFilter
   permitted_filters  %i[library_id author_id]
+  permitted_searches :user_search
   
   def index
-    @books = Book.all.where(attr_filter(params))
+    @books = json_api_filter(Book, params)
   end
     
 end
@@ -41,7 +46,27 @@ end
 ```
 
 - `permitted_filters` let you define allowed attributes to filter on (mandatory)
-- `filter_by_attr(params)` return a hash with the filter from the request params
+- `permitted_searches` let you define the allowed search method defined in you model what will be called if you pass `search` params in your request (can be a pg_search scope)
+- `json_api_filter(scope, params)` return an active record relation (`Book::` in this example)
+  
+## Migration from 0.1
+0.2.x version is not compatible with 0.1
+In your controller, you will have to replace all occurrences of `attr_filter` as bellow :
+
+### Before
+```ruby
+def index 
+  @books = Book.all.where(attr_filter(params))
+end
+```
+
+### After
+```ruby
+def index
+  @books = json_api_filter(Book, params)
+end
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
