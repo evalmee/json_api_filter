@@ -4,7 +4,7 @@ Filter for rails controller based on JsonAPI spec: `/books?filter[library_id]=1,
 
 [![Maintainability](https://api.codeclimate.com/v1/badges/f620f88131ea9d8ff650/maintainability)](https://codeclimate.com/github/Blaked84/json_api_filter/maintainability)
 [![Gem Version](https://badge.fury.io/rb/json_api_filter.svg)](https://badge.fury.io/rb/json_api_filter)
-[![Build Status](https://travis-ci.com/Blaked84/json_api_filter.svg?branch=master)](https://travis-ci.com/Blaked84/json_api_filter)
+[![Build Status](https://travis-ci.com/evalmee/json_api_filter.svg?branch=master)](https://travis-ci.com/evalmee/json_api_filter)
 
 ## Installation
 
