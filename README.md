@@ -2,7 +2,7 @@
 
 Filter for rails controller based on JsonAPI spec: `/books?filter[library_id]=1,2&filter[author_id][eq]=12&filter[created_at][gt]=2021-02-02`
 
-[![Maintainability](https://api.codeclimate.com/v1/badges/f620f88131ea9d8ff650/maintainability)](https://codeclimate.com/github/Blaked84/json_api_filter/maintainability)
+[![Maintainability](https://api.codeclimate.com/v1/badges/92a4a44d4af2bfa3b27d/maintainability)](https://codeclimate.com/github/evalmee/json_api_filter/maintainability)
 [![Gem Version](https://badge.fury.io/rb/json_api_filter.svg)](https://badge.fury.io/rb/json_api_filter)
 [![Build Status](https://travis-ci.com/evalmee/json_api_filter.svg?branch=master)](https://travis-ci.com/evalmee/json_api_filter)
 
