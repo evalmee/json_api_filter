@@ -6,9 +6,18 @@ RSpec.describe JsonApiFilter do
       permitted_filters  [:id, :author, :name, posts: [:id], articles: [:id]]
       permitted_searches :fake_global_search,
                          name: :fake_name_search
+      permitted_inclusions %i[posts, articles, articles.categories]
     end
+    User.create(name: "user name")
+    User.create(name: "other user name")
+    User.create(name: "yet another user name")
   end
-  after { Object.send :remove_const, :FakesController }
+
+  after do
+    Object.send :remove_const, :FakesController
+    User.delete_all
+  end
+
   let(:object) { FakesController.new }
   klass_examples = [
       {

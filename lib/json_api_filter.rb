@@ -36,6 +36,11 @@ module JsonApiFilter
       ).process
     end
 
+    def json_api_inclusions(params)
+      inclusions_params = params.fetch(:include, "").split(",").map(&:to_sym).uniq
+      inclusions_params.filter { |include| json_api_permitted_inclusions.include?(include) }
+    end
+
     def self.permitted_filters(val)
       define_singleton_method(:json_api_permitted_filters) do
         val
@@ -54,6 +59,20 @@ module JsonApiFilter
 
     def self.json_api_permitted_searches
       {}
+    end
+
+    def self.permitted_inclusions(inclusions)
+      define_singleton_method(:json_api_permitted_inclusions) do
+        inclusions
+      end
+    end
+
+    def self.json_api_permitted_inclusions
+      []
+    end
+
+    def json_api_permitted_inclusions
+      self.class.json_api_permitted_inclusions
     end
   end
 end
