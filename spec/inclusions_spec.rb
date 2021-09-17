@@ -39,7 +39,7 @@ RSpec.describe JsonApiFilter do
       let(:params)      { { include: "passwords" } }
 
       it "returns no inclusions" do
-        expect(controller.json_api_inclusions(params)).to be_empty
+        expect { controller.json_api_inclusions(params) }.to raise_error(JsonApiFilter::UnknownInclusions)
       end
     end
 
@@ -47,7 +47,7 @@ RSpec.describe JsonApiFilter do
       let(:params)      { { include: "passwords,posts" } }
 
       it "returns only allowed inclusions" do
-        expect(controller.json_api_inclusions(params)).to eq([:posts])
+        expect { controller.json_api_inclusions(params) }.to raise_error(JsonApiFilter::UnknownInclusions)
       end
     end
 
@@ -55,7 +55,7 @@ RSpec.describe JsonApiFilter do
       let(:params)      { { include: "passwords,posts,articles,ip_addresses" } }
 
       it "returns only allowed inclusions" do
-        expect(controller.json_api_inclusions(params)).to eq([:posts, :articles])
+        expect { controller.json_api_inclusions(params) }.to raise_error(JsonApiFilter::UnknownInclusions)
       end
     end
 
@@ -63,7 +63,7 @@ RSpec.describe JsonApiFilter do
       let(:params)      { { include: "passwords,posts,articles,ip_addresses,articles.categories" } }
 
       it "returns only allowed inclusions and paths" do
-        expect(controller.json_api_inclusions(params)).to eq([:posts, :articles, :"articles.categories"])
+        expect { controller.json_api_inclusions(params) }.to raise_error(JsonApiFilter::UnknownInclusions)
       end
     end
 

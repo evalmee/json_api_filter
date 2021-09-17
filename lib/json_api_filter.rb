@@ -19,6 +19,18 @@ module JsonApiFilter
     end
   end
 
+  class UnknownInclusions < ::StandardError
+    attr_reader :item
+    def initialize(item)
+      super(message)
+      @item = item
+    end
+
+    def message
+      "Unable to identify #{item} as a relationship path or inclusion"
+    end
+  end
+
   extend ::ActiveSupport::Concern
   included do
   
@@ -38,7 +50,9 @@ module JsonApiFilter
 
     def json_api_inclusions(params)
       inclusions_params = params.fetch(:include, "").split(",").map(&:to_sym).uniq
-      inclusions_params.filter { |include| json_api_permitted_inclusions.include?(include) }
+      unknown_inclusion = inclusions_params.find { |resource| json_api_permitted_inclusions.exclude?(resource) }
+      raise UnknownInclusions.new(unknown_inclusion) if unknown_inclusion.present?
+      inclusions_params
     end
 
     def self.permitted_filters(val)
