@@ -19,7 +19,13 @@ module JsonApiFilter
     end
   end
 
-  class UnknownInclusions < ::StandardError
+  class MissingPermittedInclusionError < ::StandardError
+    def message
+      "PERMITTED_INCLUSIONS are required"
+    end
+  end
+
+  class UnknownInclusionsError < ::StandardError
     attr_reader :item
     def initialize(item)
       super(message)
@@ -51,7 +57,11 @@ module JsonApiFilter
     def json_api_inclusions(params)
       inclusions_params = params.fetch(:include, "").split(",").map(&:to_sym).uniq
       unknown_inclusion = inclusions_params.find { |resource| json_api_permitted_inclusions.exclude?(resource) }
-      raise UnknownInclusions.new(unknown_inclusion) if unknown_inclusion.present?
+
+      # If a server is unable to identify a relationship path or does not support inclusion of resources from a path,
+      # it MUST respond with 400 Bad Request.
+      raise UnknownInclusionsError, unknown_inclusion if unknown_inclusion.present?
+
       inclusions_params
     end
 
@@ -81,8 +91,10 @@ module JsonApiFilter
       end
     end
 
+    # If an endpoint does not support the include parameter,
+    # it MUST respond with 400 Bad Request to any requests that include it.
     def self.json_api_permitted_inclusions
-      []
+      raise MissingPermittedInclusionError
     end
 
     def json_api_permitted_inclusions
