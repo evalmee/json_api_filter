@@ -56,7 +56,7 @@ end
 
 # Handling errors
 
-If a server is unable to identify a relationship path or does not support inclusion of resources from a path, it MUST respond with 400 Bad Request.
+If an endpoint does not support the include parameter, it MUST respond with 400 Bad Request to any requests that include it.
 
 ```ruby
 class Book < ApplicationController
@@ -80,8 +80,7 @@ class Book < ApplicationController
 end
 ```
 
-For an unknown relationship you can do something similar
-
+If a server is unable to identify a relationship path or does not support inclusion of resources from a path, it MUST respond with 400 Bad Request.
 This request should return a 400 status:
 
  `/books?filter[library_id]=1,2&filter[author_id]=12&search=Lord of the ring&include=users,users.posts, users.addresses`
@@ -91,7 +90,7 @@ class Book < ApplicationController
 
   include JsonApiFilter
   permitted_filters  %i[library_id author_id]
-  permitted_searches :user_searchrender plain: "404 Not Found", status: 404
+  permitted_searches :user_search
   permitted_inclusions %i[users users.posts]
 
   rescue_from JsonApiFilter::UnknownInclusionsError, with: :render_400
