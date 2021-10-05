@@ -4,10 +4,15 @@ RSpec.describe JsonApiFilter do
       include ::JsonApiFilter
       permitted_inclusions %i[posts articles articles.categories]
     end
+
+    class NoInclusionsController
+      include ::JsonApiFilter
+    end
   end
 
   after do
     Object.send :remove_const, :FakesController
+    Object.send :remove_const, :NoInclusionsController
   end
 
   describe "#json_api_inclusions" do
@@ -66,6 +71,15 @@ RSpec.describe JsonApiFilter do
 
       it "ignores duplicates" do
         expect(controller.json_api_inclusions(params)).to eq([:posts, :"articles.categories"])
+      end
+    end
+
+    context "controller has no inclusions" do
+      let(:controller) { NoInclusionsController.new }
+      let(:params)      { { include: "posts" } }
+
+      it "raises a missing permitted inclusion error" do
+        expect { controller.json_api_inclusions(params) }.to raise_error(JsonApiFilter::MissingPermittedInclusionError)
       end
     end
   end
