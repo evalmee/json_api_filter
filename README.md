@@ -28,7 +28,7 @@ $ gem install json_api_filter
 
 ### Quick start
 
-To filter this request `/books?filter[library_id]=1,2&filter[author_id]=12&search=Lord of the ring`
+To filter this request `/books?filter[library_id]=1,2&filter[author_id]=12&search=Lord of the ring&include=users,users.posts`
 
 ```ruby
 class Book < ApplicationController
@@ -36,9 +36,13 @@ class Book < ApplicationController
   include JsonApiFilter
   permitted_filters  %i[library_id author_id]
   permitted_searches :user_search
-  
+  permitted_inclusions %i[users users.posts]
+
   def index
     @books = json_api_filter(Book, params)
+    inclusions = json_api_inclusions(params) # returns [:users, :'users.posts']
+
+    # then use `inclusions` in the serialiser
   end
     
 end
@@ -47,8 +51,64 @@ end
 
 - `permitted_filters` let you define allowed attributes to filter on (mandatory)
 - `permitted_searches` let you define the allowed search method defined in you model what will be called if you pass `search` params in your request (can be a pg_search scope)
+- `permitted_inclusions` let you define the allowed inclusions
 - `json_api_filter(scope, params)` return an active record relation (`Book::` in this example)
+
+# Handling errors
+
+If a server is unable to identify a relationship path or does not support inclusion of resources from a path, it MUST respond with 400 Bad Request.
+
+```ruby
+class Book < ApplicationController
+
+  include JsonApiFilter
+  permitted_filters  %i[library_id author_id]
+  permitted_searches :user_search
   
+  rescue_from JsonApiFilter::MissingPermittedInclusionError, with: :render_400
+
+  def index
+    @books = json_api_filter(Book, params)
+    inclusions = json_api_inclusions(params) # raises JsonApiFilter::MissingPermittedInclusionError
+  end
+  
+  private
+  
+  def render_400(exception)
+    render json: exception, status: 400
+  end
+end
+```
+
+For an unknown relationship you can do something similar
+
+This request should return a 400 status:
+
+ `/books?filter[library_id]=1,2&filter[author_id]=12&search=Lord of the ring&include=users,users.posts, users.addresses`
+
+```ruby
+class Book < ApplicationController
+
+  include JsonApiFilter
+  permitted_filters  %i[library_id author_id]
+  permitted_searches :user_searchrender plain: "404 Not Found", status: 404
+  permitted_inclusions %i[users users.posts]
+
+  rescue_from JsonApiFilter::UnknownInclusionsError, with: :render_400
+
+  def index
+    @books = json_api_filter(Book, params)
+    inclusions = json_api_inclusions(params) # raises JsonApiFilter::UnknownInclusionsError
+  end
+
+  private
+
+  def render_400(exception)
+    render json: exception, status: 400
+  end
+end
+```
+
 ## Migration from 0.1
 0.2.x version is not compatible with 0.1
 In your controller, you will have to replace all occurrences of `attr_filter` as bellow :
