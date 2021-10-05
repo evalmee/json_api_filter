@@ -2,18 +2,12 @@ RSpec.describe JsonApiFilter do
   before do
     class FakesController
       include ::JsonApiFilter
-      permitted_filters  [:id, :author, :name, posts: [:id], articles: [:id]]
-      permitted_searches :fake_global_search, name: :fake_name_search
       permitted_inclusions %i[posts articles articles.categories]
     end
-    User.create(name: "user name")
-    User.create(name: "other user name")
-    User.create(name: "yet another user name")
   end
 
   after do
     Object.send :remove_const, :FakesController
-    User.delete_all
   end
 
   describe "#json_api_inclusions" do
@@ -38,7 +32,7 @@ RSpec.describe JsonApiFilter do
     context "unallowed include params" do
       let(:params)      { { include: "passwords" } }
 
-      it "returns no inclusions" do
+      it "raise an unknown inclusions error" do
         expect { controller.json_api_inclusions(params) }.to raise_error(JsonApiFilter::UnknownInclusionsError)
       end
     end
@@ -46,7 +40,7 @@ RSpec.describe JsonApiFilter do
     context "unallowed + allowed include params" do
       let(:params)      { { include: "passwords,posts" } }
 
-      it "returns only allowed inclusions" do
+      it "raise an unknown inclusions error" do
         expect { controller.json_api_inclusions(params) }.to raise_error(JsonApiFilter::UnknownInclusionsError)
       end
     end
@@ -62,7 +56,7 @@ RSpec.describe JsonApiFilter do
     context "multiples unallowed + allowed + relationship paths include params" do
       let(:params)      { { include: "passwords,posts,articles,ip_addresses,articles.categories" } }
 
-      it "returns only allowed inclusions and paths" do
+      it "raise an unknown inclusions error" do
         expect { controller.json_api_inclusions(params) }.to raise_error(JsonApiFilter::UnknownInclusionsError)
       end
     end
