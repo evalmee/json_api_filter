@@ -43,8 +43,8 @@ class Book < ApplicationController
     inclusions = json_api_inclusions(params) # returns [:users, :'users.posts']
 
     # then use `inclusions` in the serialiser
+    BookSerializer.new(@books, include: inclusions).serializable_hash.to_json
   end
-    
 end
 
 ```
@@ -53,6 +53,8 @@ end
 - `permitted_searches` let you define the allowed search method defined in you model what will be called if you pass `search` params in your request (can be a pg_search scope)
 - `permitted_inclusions` let you define the allowed inclusions
 - `json_api_filter(scope, params)` return an active record relation (`Book::` in this example)
+
+# Use inclusions in serializers
 
 # Handling errors
 
