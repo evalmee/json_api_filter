@@ -8,7 +8,11 @@ RSpec.describe JsonApiFilter do
                          name: :fake_name_search
     end
   end
-  after { Object.send :remove_const, :FakesController }
+
+  after do
+    Object.send :remove_const, :FakesController
+  end
+
   let(:object) { FakesController.new }
   klass_examples = [
       {
