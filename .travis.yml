@@ -3,8 +3,9 @@ sudo: false
 language: ruby
 cache: bundler
 rvm:
-  - 2.6.3
-before_install: gem install bundler -v 1.17.2
+  - 3.3.4
+before_install: gem install bundler -v 2.5.11
 script:
+  - (cd spec/dummy && bundle install)
   - (cd spec/dummy && RAILS_ENV=test bundle exec rails db:setup)
   - bundle exec rspec

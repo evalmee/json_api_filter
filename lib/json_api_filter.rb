@@ -1,5 +1,6 @@
 require "json_api_filter/version"
 require "json_api_filter/auto_join"
+require "json_api_filter/custom_filter"
 require "json_api_filter/dispatch"
 require "json_api_filter/filter_attributes"
 require "json_api_filter/value_parser"
@@ -42,7 +43,7 @@ module JsonApiFilter
   
     # @param [ActiveRecord::Base] scope
     def json_api_filter(scope, query_params = params)
-      unless self.class.json_api_permitted_filters.present?
+      unless self.class.json_api_permitted_filters.present? || self.class.json_api_custom_filters.present?
         raise ::JsonApiFilter::MissingPermittedFilterError
       end
 
@@ -50,7 +51,8 @@ module JsonApiFilter
         scope,
         query_params,
         allowed_filters: self.class.json_api_permitted_filters,
-        allowed_searches: self.class.json_api_permitted_searches
+        allowed_searches: self.class.json_api_permitted_searches,
+        custom_filters: self.class.json_api_custom_filters
       ).process
     end
 
@@ -73,6 +75,20 @@ module JsonApiFilter
 
     def self.json_api_permitted_filters
       []
+    end
+
+    def self.filter(name, &definition)
+      filters = json_api_custom_filters.merge(
+        name.to_s => ::JsonApiFilter::CustomFilter.new(&definition)
+      ).freeze
+
+      define_singleton_method(:json_api_custom_filters) do
+        filters
+      end
+    end
+
+    def self.json_api_custom_filters
+      {}.freeze
     end
 
     def self.permitted_searches(global, **columns)

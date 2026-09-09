@@ -49,10 +49,44 @@ end
 
 ```
 
-- `permitted_filters` let you define allowed attributes to filter on (mandatory)
+- `permitted_filters` let you define allowed attributes to filter on (mandatory unless a custom filter is declared)
 - `permitted_searches` let you define the allowed search method defined in you model what will be called if you pass `search` params in your request (can be a pg_search scope)
 - `permitted_inclusions` let you define the allowed inclusions
 - `json_api_filter(scope, params)` return an active record relation (`Book::` in this example)
+
+## Custom filters
+
+Use `filter` when the public filter name or values do not map directly to a database column. Custom filters are
+permitted by their declaration and do not also belong in `permitted_filters`.
+
+```ruby
+TYPE_MAP = {
+  "online" => "exam",
+  "paper" => "paper",
+}.freeze
+
+filter :type do
+  eq do |scope, values|
+    mapped_values = values.map { |value| TYPE_MAP[value] }
+
+    mapped_values.any?(&:nil?) ? scope.none : scope.where(quiz_type: mapped_values)
+  end
+end
+```
+
+Direct syntax uses the `eq` handler, so both of these requests call the block above:
+
+```text
+/exams?filter[type]=online
+/exams?filter[type][eq]=online
+```
+
+Values are always passed as an array. Comma-separated values are split before the handler is called, so
+`filter[type]=online,paper` passes `["online", "paper"]`.
+
+The supported custom operators are the operators already understood by the gem: `eq`, `ne`, `gt`, `ge`, `lt`, and
+`le`. Only declared operator blocks run. A custom filter never falls back to treating its public name as a database
+column. Every handler must return an Active Record scope.
 
 # Use inclusions in serializers
 
