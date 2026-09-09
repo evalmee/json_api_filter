@@ -348,6 +348,12 @@ RSpec.describe "custom filters" do
     expect(controller.json_api_filter(User, params)).to eq(User.all)
   end
 
+  it "ignores a supported operator that the custom filter did not declare" do
+    params = { filter: { public_kind: { lt: "writer" } } }.with_indifferent_access
+
+    expect(controller.json_api_filter(User, params)).to eq(User.all)
+  end
+
   it "can translate public values" do
     params = { filter: { public_kind: "writer" } }.with_indifferent_access
     result = controller.json_api_filter(User, params)
