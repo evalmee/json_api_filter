@@ -1,8 +1,9 @@
 require "bundler/setup"
 require "json_api_filter"
-require File.expand_path('../spec/dummy/config/environment.rb', __dir__)
-ENV['RAILS_ROOT'] ||= File.dirname(__FILE__) + '../../../spec/dummy'
-require 'rspec/rails'
+ENV["RAILS_ENV"] ||= "test"
+ENV["RAILS_ROOT"] ||= File.expand_path("dummy", __dir__)
+require File.expand_path("dummy/config/environment.rb", __dir__)
+require "rspec/rails"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

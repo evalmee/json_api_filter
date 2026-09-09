@@ -275,3 +275,122 @@ RSpec.describe JsonApiFilter do
   end
 
 end
+
+RSpec.describe "custom filters" do
+  before do
+    class CustomFiltersController
+      include ::JsonApiFilter
+
+      permitted_filters [:id]
+
+      filter :public_name do
+        eq { |scope, values| scope.where(name: values) }
+        ne { |scope, values| scope.where.not(name: values) }
+        gt { |scope, values| scope.where("id > ?", values.first) }
+        ge { |scope, values| scope.where("id >= ?", values.first) }
+        lt { |scope, values| scope.where("id < ?", values.first) }
+        le { |scope, values| scope.where("id <= ?", values.first) }
+      end
+
+      filter :public_kind do
+        eq do |scope, values|
+          mapping = { "writer" => "Alice", "reader" => "Bob" }
+          mapped_values = values.map { |value| mapping[value] }
+
+          mapped_values.any?(&:nil?) ? scope.none : scope.where(name: mapped_values)
+        end
+      end
+    end
+  end
+
+  after do
+    Object.send :remove_const, :CustomFiltersController
+  end
+
+  let(:controller) { CustomFiltersController.new }
+
+  it "uses eq for the direct syntax and passes multiple values as an array" do
+    params = { filter: { public_name: "Alice,Bob" } }.with_indifferent_access
+    result = controller.json_api_filter(User, params)
+
+    expect(result.to_sql).to eq(User.where(name: ["Alice", "Bob"]).to_sql)
+  end
+
+  it "uses eq for the explicit operator syntax" do
+    params = { filter: { public_name: { eq: "Alice,Bob" } } }.with_indifferent_access
+
+    expect(controller.json_api_filter(User, params).to_sql).to eq(User.where(name: ["Alice", "Bob"]).to_sql)
+  end
+
+  {
+    ne: User.where.not(name: ["1"]),
+    gt: User.where("id > ?", "1"),
+    ge: User.where("id >= ?", "1"),
+    lt: User.where("id < ?", "1"),
+    le: User.where("id <= ?", "1"),
+  }.each do |operator, expected_scope|
+    it "dispatches the #{operator} operator" do
+      params = { filter: { public_name: { operator => "1" } } }.with_indifferent_access
+
+      expect(controller.json_api_filter(User, params).to_sql).to eq(expected_scope.to_sql)
+    end
+  end
+
+  it "composes custom and permitted filters" do
+    params = { filter: { public_name: "Alice", id: "1" } }.with_indifferent_access
+
+    expect(controller.json_api_filter(User, params)).to eq(User.where(name: ["Alice"]).where(id: ["1"]))
+  end
+
+  it "does not treat the custom filter name as a column" do
+    params = { filter: { public_name: { unsupported: "Alice" } } }.with_indifferent_access
+
+    expect(controller.json_api_filter(User, params)).to eq(User.all)
+  end
+
+  it "ignores a supported operator that the custom filter did not declare" do
+    params = { filter: { public_kind: { lt: "writer" } } }.with_indifferent_access
+
+    expect(controller.json_api_filter(User, params)).to eq(User.all)
+  end
+
+  it "can translate public values" do
+    params = { filter: { public_kind: "writer" } }.with_indifferent_access
+    result = controller.json_api_filter(User, params)
+
+    expect(result.to_sql).to eq(User.where(name: ["Alice"]).to_sql)
+  end
+
+  it "can return an empty scope for an unknown public value" do
+    params = { filter: { public_kind: "bogus" } }.with_indifferent_access
+    result = controller.json_api_filter(User, params)
+
+    expect(result.to_sql).to eq(User.none.to_sql)
+  end
+
+  it "allows a controller with only custom filters" do
+    custom_filter_only_controller = Class.new do
+      include ::JsonApiFilter
+
+      filter :public_name do
+        eq { |scope, values| scope.where(name: values) }
+      end
+    end
+
+    params = { filter: { public_name: "Alice" } }.with_indifferent_access
+    result = custom_filter_only_controller.new.json_api_filter(User, params)
+
+    expect(result.to_sql).to eq(User.where(name: ["Alice"]).to_sql)
+  end
+
+  it "inherits filter definitions without mutating its parent" do
+    child_controller = Class.new(CustomFiltersController) do
+      filter :child_filter do
+        eq { |scope, values| scope.where(id: values) }
+      end
+    end
+
+    expect(child_controller.json_api_custom_filters.keys).to contain_exactly("public_name", "public_kind", "child_filter")
+    expect(CustomFiltersController.json_api_custom_filters.keys).to contain_exactly("public_name", "public_kind")
+  end
+end

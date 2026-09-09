@@ -1,6 +1,7 @@
 name: Ruby Gem
 
 on:
+  pull_request:
   push:
     branches: [ master ]
 
@@ -13,13 +14,25 @@ jobs:
       packages: write
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Ruby 2.6
-      uses: actions/setup-ruby@v1
+    - uses: actions/checkout@v4
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
       with:
-        ruby-version: 2.6.x
+        ruby-version: 3.3.4
+        bundler: 2.5.11
+        bundler-cache: true
+
+    - name: Set up the test database
+      run: |
+        bundle install
+        bundle exec rails db:setup
+      working-directory: spec/dummy
+
+    - name: Run tests
+      run: bundle exec rspec
 
     - name: Publish to RubyGems
+      if: github.event_name == 'push'
       run: |
         mkdir -p $HOME/.gem
         touch $HOME/.gem/credentials

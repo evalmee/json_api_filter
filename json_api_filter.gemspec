@@ -11,8 +11,9 @@ Gem::Specification.new do |spec|
 
   spec.summary       = "Provide a filter for jsonAPI Controller in Rails"
   spec.description   = ""
-  spec.homepage      = "https://github.com/Blaked84/json_api_filter"
+  spec.homepage      = "https://github.com/evalmee/json_api_filter"
   spec.license       = "MIT"
+  spec.required_ruby_version = ">= 3.3.4"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
   # to allow pushing to a single host or delete this section to allow pushing to any host.
@@ -20,7 +21,7 @@ Gem::Specification.new do |spec|
     spec.metadata["allowed_push_host"] =  "https://rubygems.org"
 
     spec.metadata["homepage_uri"] = spec.homepage
-    spec.metadata["source_code_uri"] = "https://github.com/Blaked84/json_api_filter"
+    spec.metadata["source_code_uri"] = "https://github.com/evalmee/json_api_filter"
   else
     raise "RubyGems 2.0 or newer is required to protect against " \
       "public gem pushes."
@@ -35,12 +36,12 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_development_dependency "bundler", "~> 1.16"
+  spec.add_development_dependency "bundler", "~> 2.5"
   spec.add_development_dependency "rake", "~> 13.0"
   spec.add_development_dependency "rspec", ">= 3.0"
   spec.add_development_dependency "rspec-rails"
   spec.add_development_dependency "sqlite3"
-  spec.add_development_dependency 'rails'
+  spec.add_development_dependency 'rails', '>= 7.1', '< 7.2'
   spec.add_development_dependency 'byebug'
   spec.add_dependency "activesupport", ">= 3.0.0"
 end
